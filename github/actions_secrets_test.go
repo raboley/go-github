@@ -86,6 +86,34 @@ func TestActionsService_GetRepoSecret(t *testing.T) {
 	}
 }
 
+func TestActionsService_EncryptRepoSecret(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
+	want := &EncryptedSecret{
+		Name:           "NAME",
+		EncryptedValue: "QIv=",
+		KeyID:          "1234",
+	}
+
+	encrypter := &spyEncrypter{}
+	key := &PublicKey{KeyID: String("1234"), Key: String("2Sg8iYjAxxmI2LvUXpJjkYrMxURPc8r+dB7TJyvv1234")}
+	secret := client.Actions.EncryptRepoSecret(encrypter, key, "NAME", "VALUE")
+
+	if secret != want {
+		t.Errorf("Actions.EncryptRepoSecret returned %+v, want %+v", secret, want)
+	}
+}
+
+type spyEncrypter struct {
+	called int
+}
+
+func (s *spyEncrypter) CryptoBoxSeal(secretBytes []byte, key *PublicKey) EncryptedSecret {
+	s.called++
+	return EncryptedSecret{}
+}
+
 func TestActionsService_CreateOrUpdateRepoSecret(t *testing.T) {
 	client, mux, _, teardown := setup()
 	defer teardown()

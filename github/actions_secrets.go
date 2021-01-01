@@ -129,6 +129,14 @@ type EncryptedSecret struct {
 	SelectedRepositoryIDs SelectedRepoIDs `json:"selected_repository_ids,omitempty"`
 }
 
+type SecretEncrypter interface {
+	CryptoBoxSeal([]byte, *PublicKey) *EncryptedSecret
+}
+
+func (s *ActionsService) EncryptRepoSecret(encrypter *SecretEncrypter, publicKey *PublicKey, secretName, secretValue string) *EncryptedSecret {
+	return &EncryptedSecret{}
+}
+
 // CreateOrUpdateRepoSecret creates or updates a repository secret with an encrypted value.
 //
 // GitHub API docs: https://docs.github.com/en/rest/reference/actions/#create-or-update-a-repository-secret
